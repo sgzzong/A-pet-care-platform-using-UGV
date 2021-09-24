@@ -1,0 +1,57 @@
+theconstructsim ros basic 5 days
+part 3. ros Topic
+2017136056 신길종 2021.09.24
+
+Topic publisher 예제
+1. my_examples_pkg 패키지를 생성 후 scripts 폴더 생성
+2. script 폴더에서 simple_topics_publisher.py 생성
+        #! /usr/bin/env python
+
+        import rospy # ROS용 파이썬 라이브러리 가져오기
+        from std_msgs.msg 가져오기 Int32 # std_msgs 패키지에서 Int32 메시지 가져오기
+
+        rospy.init_node('topic_publisher') # 'topic_publisher'라는 이름의 노드를 시작합니다.
+        펍 = 로스피.게시자('/counter', Int32, queue_size=1)
+        # /카운터 항목에 게시할 게시자 개체를 만듭니다.
+        # Int32 유형의 메시지
+
+        = rospy 등급을 매기다속도(2) # 게시 속도를 2Hz로 설정
+        count = Int32() # Int32 유형의 var 만들기
+        count.data = 0 # 'count' 변수 초기화
+
+        while rospy.is_facebook: # 누군가 프로그램 실행을 중지할 때까지 루프를 만듭니다.
+        pub.publish (count) # 'count' 변수 내에 메시지를 게시합니다.
+        count.data += 1 # 증가 'count' 변수
+3. catkin_ws로 이동 후 catkin build로 컴파일 후 ros최신화
+4. rosrun my_examples_pkg simple_topic_publisher.py 으로 토픽 퍼블리셔 실행
+5. rostopic list | grep  '/counter' 으로 실행중인 모든 항목을 나열 후 grep 명령어로 필터링한 항목 중 /counter가 포함된 항목을 모두 나열
+6. rostopic info /counter 명령어로 토픽의 이름인 /counter의 정보를 확인
+      
+      Type: std_msgs/Int32
+      Publishers:
+       * /topic_publisher (http://4_xterm:35687/)
+      Subscribers: None    
+7. rostopic echo /counter 으로 실행중인 항목의 출력을 실시간으로 확인
+
+Topic subcriber 예제
+1. 위 폴더를 사용하여 scripts 폴더에 simple_topic_subscriber.py파일 생성후 실행권한을 줌
+      #! /usr/bin/env python
+
+      import rospy                                          
+      from std_msgs.msg import Int32 
+
+      def callback(msg):                                    # 매개변수를 수신하는 '콜백'이라는 함수를 정의한다.
+                                                            # named 'msg'
+
+          print (msg.data)                                  # 'msg' 파라미터 안에 값 'data'를 출력한다.
+
+      rospy.init_node('topic_subscriber')                   # 'topic_subscriber'라는 노드를 시작합니다.
+
+      sub = rospy.Subscriber('/counter', Int32, callback)   #  /counter를 수신하는 가입자 개체 만들기
+                                                            # topic and will cal the 'callback' function each time it reads
+                                                            # something from the topic
+      rospy.spin()
+2. catkin_ws로 이동 후 catkin build로 컴파일 후 ros최신화
+3. rosrun my_examples_pkg simple_topic_subscriber.py으로 토픽 subscriber 실행
+4. rostopic pub /counter std_msgs/Int32 5 을 입력하여 토픽으로 5라는 특별한 값을 제공
+5. rostopic echo /counter 으로 5가 출력되는 것을 확인
