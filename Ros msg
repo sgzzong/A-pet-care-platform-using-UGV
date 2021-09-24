@@ -1,0 +1,10 @@
+theconstructsim ros basic 5 days
+part 4. ros CMakeLists.txt and package.xml
+2017136056 신길종 2021.09.24
+
+int32가 아닌 연령,년,월 및 수를 나타내는 메세지를 만드는 예제
+1. Topic 예제를 했던 패키지에 msg라는 폴더를 생성 후 Age.msg 파일을 생성
+2. CMakeList.txt에 find_package(), add_message_files(), generate_messages(), catkin_package() 함수 추가
+3. package.xml 파일에 <build_depend>message_generation</build_depend> ,<build_export_depend>message_runtime</build_export_depend>, <exec_depend>message_runtime</exec_depend> 추가
+4. catkin_ws에서 build를 한 후 ros 최신화
+5. rosmsg show <file_name>을 입력하여 기간 메세지 구조를 출력하여 ros프로그램에서 사용할 준비를 완료
