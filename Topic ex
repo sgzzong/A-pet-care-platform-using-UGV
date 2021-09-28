@@ -1,0 +1,8 @@
+mkdir -p ~/catkin_ws/src
+cd catkin_ws
+catkin_make
+cd src
+catkin_create_pkg my_package rospy
+catkln_make
+source devel/setup.bash
+
