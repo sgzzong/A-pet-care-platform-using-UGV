@@ -164,6 +164,21 @@ code start_all.launch
         </launch>
 roslaunch wecar_test start_all.launch 를 하면 위에서 3개를 켰던 것과 동일하게 실행됨 
 
+bag하는 방법
+roslaunch wecar teleop.launch > 라이다 동작
+cd Desktop //새로운 터미널에서
+rosbag help
+play랑 record를 쓸거
+rosbag record /zed2/zed_node/rgb/image_rect_color /scan /vesc/low_level/ackermann_cmd_mux/input/teleop /vesc/high_level/ackermann_cmd_mux/input/nav0
+새로운 터미널을 열고
+roscore
+새로운 터미널 열고 
+cd Desktop
+rosbag play -l --clock bag파일//라이다는 오래된 값을 받아들이게되면 오류가남
+새로운 터미널 열고
+rostopic list
+
+rosbag을 통해서 데이터를 저장하고 불러올 수 있음
 
 
     
