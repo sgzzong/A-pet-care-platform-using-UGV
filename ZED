@@ -29,5 +29,11 @@ rqt_graph
 rostopic pub -r 5 /vesc/high_level/ackermann_cmd_mux/input/nav_0 taptap (*set speed : 1.0, steering_angle :0.1 , speed : 1.0 , angle : -0.2 is reverse): 5times in 1 secends send topic and push RB, we can see machine move 
     set only angle, speed.
 
+new terminal onen 
+rosed zed_wrapper common.yaml >> open common.yaml in vscode
+
+* rqt > plugin > configration > Dynamic > ZED_node > video setting and we must setting vscode value(vidoe setting is not vscode setting)
+don`t setting ridar
+
 
 
