@@ -70,7 +70,7 @@ code lidar_sub.py 빈파일 생성
                 print("safe")
                 self.stop_pub.publish(0)
     def run():
-        rospy.init_node("lidar_pub", anonymous=True) # 3개를 동시에 킬때 _pub 앞에 부분의 이름을 수정해야댐
+        rospy.init_node("lidar_sub", anonymous=True) # 3개를 동시에 킬때 _pub 앞에 부분의 이름을 수정해야댐
         lidar_receiver_a = lidar_receiver()
         rospy.spin()
     if __name__ == "__main__":
@@ -104,7 +104,7 @@ code camera_sub.py #opencv로 이미지를 띄워주는 예제
                 cv2.waitKey(1) #이미지 창을 띄우고 기다리는것 (1ms) imshow와 세트임
                 self.stop_pub.publish(1)
         def run():
-            rospy.init_node("camera_pub", anonymous=True) # 3개를 동시에 킬때 _pub 앞에 부분의 이름을 수정해야댐
+            rospy.init_node("camera_sub", anonymous=True) # 3개를 동시에 킬때 _pub 앞에 부분의 이름을 수정해야댐
             lidar_receiver_a = lidar_receiver()
             rospy.spin()
         if __name__ == "__main__":
@@ -152,6 +152,17 @@ vscode를 통해 steer_pub을 수정 *수정할 때 위에 두 코드의 이름�
 
 cd wecar_ws
 lider_sub 실행, steer_sub 실행하면 RB를 눌렀을 때 자동으로 앞으로 가다가 라이다센서에 가까이 대면 멈춤 
+
+roscd wecar_test
+mkdir launch
+cd launch
+code start_all.launch
+        <launch>
+            <node name="lidar_sub" pkg = "wecar_test" type = "lidar_sub.py" />
+            <node name="camera_sub" pkg = "wecar_test" type = "camera_sub.py" /> 
+            <node name="steer_pub" pkg = "wecar_test" type = "steer_sub.py" />
+        </launch>
+roslaunch wecar_test start_all.launch 를 하면 위에서 3개를 켰던 것과 동일하게 실행됨 
 
 
 
