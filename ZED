@@ -1,0 +1,22 @@
+jstest /dev/input/js0
+cd /usr/local/zed/tools
+./ZED_Depth_Viewer
+cd
+ls -la /dev/tty*
+roslaunch wecar teleop.launch    //in home dir, joystick can move, machine head spin
+how to move ?  >>  LB + right stick : left,right, LB + Left stick : front, back   , RB : automove
+rosrun rviz rviz -d /home/wecar/wecar_ws/src/wecar/rviz/view_sensors.rviz  >> rviz open
+
+*How to operate rviz ?
+    rviz > add laserscan > Topic > /scan
+    global options > Fixed Frame > laser
+    x,y,z,red sign are made
+    
+    add > By topic > Laserscan
+
+rostopic echo /scan -n 1
+
+
+
+
+
