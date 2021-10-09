@@ -15,10 +15,10 @@ rviz showdown
     
     add > By topic > Laserscan
 
-rostopic echo /scan -n 1  >>>> 'laser' is whkvyrP
+rostopic echo /scan -n 1  >>>> 'laser' is 좌표계
 
 
-rqt > plugin > visualization > tf Tree      >>>> whkvyrP relationship,
+rqt > plugin > visualization > tf Tree      >>>> 좌표계 relationship,
     odom : Km record
 rqt shotdown
 
@@ -35,5 +35,126 @@ rosed zed_wrapper common.yaml >> open common.yaml in vscode
 * rqt > plugin > configration > Dynamic > ZED_node > video setting and we must setting vscode value(vidoe setting is not vscode setting)
 don`t setting ridar
 
+rosed zed_wrapper vesc.yaml
+    vesc.driver speedmin,max 건드리지말기
+    steering_angle_to_servo_offset : 사용자의 요구에 맞게 변환가능 ( 일자로 된 값)
+
+rosmsg show sensor_msgs/LaserScan : 라이다 레이져 스캔의 정보
+   라이다 정면에 있는 값을 추출하려면 센터에 있는 값을 받는다.
+   
+
+라이다 데이터를 받아들이는 방법
+
+cd wecar_ws/src/wecar_test/scripts  //pub와 sub을 한 파일에서 실행하는 예제
+code lidar_sub.py 빈파일 생성
+#! /usr/bin/env python 
+    import rospy
+    from sensor_msgs.msg import LaserScan
+    from std_msgs.msg import Int32
+
+    class lidar_receiver:
+        def __init__(self):
+            self.lidar_sub = rospy.Subscriber("/scan",LaserScan, self.callback)
+            self.stop_pub = rospy.Publisher("/warning",Int32, queue_size = 5)
+
+        def callback(self,data): #rosmsg show sensor_msgs/LaserScan에 나온 변수들을 사용가능
+            print(data.anlge_min)
+            for i in range(len(data.ranges)):
+                angle = data.angle_min + i * data.angle_increment #각도를 구하기 라디안 기준 
+                if angle > -0.01 and angle < 0.01:
+                    print("{}th index range = {}".format(i,data.ranges[i]))
+            if data.ranges[360] == 0.2 #m단위이므로 2cm
+                print("warning")
+                self.stop_pub.publish(1)
+            else:
+                print("safe")
+                self.stop_pub.publish(0)
+    def run():
+        rospy.init_node("lidar_pub", anonymous=True) # 3개를 동시에 킬때 _pub 앞에 부분의 이름을 수정해야댐
+        lidar_receiver_a = lidar_receiver()
+        rospy.spin()
+    if __name__ == "__main__":
+        run()
+sudo chmod +x lidar_sub.py
+cd ~/wecar_ws && catkin_make
+source devel/setup.bash
+rospack profile
+rosrun wecar_test lidar_sub.py #-3.124.. 최소측정거리보다 가깝거나 먼 값이 나오면 inf가 출력 , range는 0도가 후면기준으로 360이면 정면 180이면 오른쪽 540이면 왼쪽
+-----------------------------------------------------------라이다의 각도에 해당하는 값을 출력함 -----------------------------------------------------------------------------
+roscd wecar_test/scripts
+cp steer_sub.py camera_sub.py
+code camera_sub.py #opencv로 이미지를 띄워주는 예제
+        #!  /usr/bin/env python 
+        import rospy
+        from sensor_msgs.msg import Image
+        from std_msgs.msg import Int32
+        from cv_bridge import CvBridge #opencv와 로스 이미지 사이에는 차이가 있으므로 opencv 이미지 파일형태로 변환시켜주는 모듈
+        import cv2 #rostopic list 카메라의 데이터 타입을 확인 
+                    rostopic info /zed2/zed_node/rgb/image_rect_color 을 치면 Image값인 것을 확인하고 코드에 Image를 import
+
+        class lidar_receiver:
+            def __init__(self):
+                self.lidar_sub = rospy.Subscriber("/zed2/zed_node/rgb/image_rect_color",Image, self.callback)
+                self.stop_pub = rospy.Publisher("/check",Int32, queue_size = 5)
+                self.cvbridge = CvBridge()
+
+            def callback(self,data): #rosmsg show sensor_msgs/LaserScan에 나온 변수들을 사용가능
+                frame = self.cvbridge.imgmsg_to_cv2(data,"bgr8")
+                cv2.imshow("frame",frame)
+                cv2.waitKey(1) #이미지 창을 띄우고 기다리는것 (1ms) imshow와 세트임
+                self.stop_pub.publish(1)
+        def run():
+            rospy.init_node("camera_pub", anonymous=True) # 3개를 동시에 킬때 _pub 앞에 부분의 이름을 수정해야댐
+            lidar_receiver_a = lidar_receiver()
+            rospy.spin()
+        if __name__ == "__main__":
+            run()
+
+
+roslaunch wecar teleop만 실행된 터미널을 제외하고 모두 종료
+새로운 터미널을 하나 생성
+cd wecar_ws/src
+catkin_create_pkg wecar_test rospy 예제를 위한 패키지 생성
+cd wecar_test
+mkdir scripts
+cd scripts
+touch steer_pub.py
+sudo chmod +x steer_pub.py
+vscode를 통해 steer_pub을 수정 *수정할 때 위에 두 코드의 이름을 바꿔주고 3개를 실행해야함, 이름 겹침
+*rosmsg show ackerman_msgs/AckermannDriveStamped 를 하면 사용할수있는 정보의 이름을 출력해줌
+        #!  /usr/bin/env python 
+        import rospy
+        from ackermann_msgs.msg import AckermannDriveStamped
+        from std_msgs.msg import Int32
+        from cv_bridge import CvBridge #opencv와 로스 이미지 사이에는 차이가 있으므로 opencv 이미지 파일형태로 변환시켜주는 모듈
+        import cv2
+
+        class lidar_receiver:
+            def __init__(self):
+                self.stop_sub = rospy.Subscriber("/warning",Int32, self.callback)
+                self.drive_pub = rospy.Publisher("/vesc/high_level/ackermann_cmd_mux/input/nav_0",AckermannDriveStamped, queue_size = 5)
+
+            def callback(self,data): #rosmsg show sensor_msgs/LaserScan에 나온 변수들을 사용가능
+                tmp_data = AckermannDriveStamped()
+                if data.data == 1:
+                    tmp.data.drive.steer_angle = 0.2
+                    tmp.data.drive.speed = 0.0
+                else:
+                    tmp.data.drive.steer_angle = -0.2
+                    tmp.data.drive.speed = 1.0
+                self.drive_pub.publish(tmp_data)
+        def run():
+            rospy.init_node("steer_pub", anonymous=True)
+            lidar_receiver_a = lidar_receiver()
+            rospy.spin()
+        if __name__ == "__main__":
+            run()
+
+cd wecar_ws
+lider_sub 실행, steer_sub 실행하면 RB를 눌렀을 때 자동으로 앞으로 가다가 라이다센서에 가까이 대면 멈춤 
+
+
+
+    
 
 
