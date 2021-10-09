@@ -6,6 +6,7 @@ ls -la /dev/tty*
 roslaunch wecar teleop.launch    //in home dir, joystick can move, machine head spin
 how to move ?  >>  LB + right stick : left,right, LB + Left stick : front, back   , RB : automove
 rosrun rviz rviz -d /home/wecar/wecar_ws/src/wecar/rviz/view_sensors.rviz  >> rviz open
+rviz showdown
 
 *How to operate rviz ?
     rviz > add laserscan > Topic > /scan
@@ -14,9 +15,19 @@ rosrun rviz rviz -d /home/wecar/wecar_ws/src/wecar/rviz/view_sensors.rviz  >> rv
     
     add > By topic > Laserscan
 
-rostopic echo /scan -n 1
+rostopic echo /scan -n 1  >>>> 'laser' is whkvyrP
 
 
+rqt > plugin > visualization > tf Tree      >>>> whkvyrP relationship,
+    odom : Km record
+rqt shotdown
+
+rivz > add > TF > all Enable uncheck > Axes uncheck > Frame Fixe : odom > odom, base_link check > and move controler : visualization move
+rivz shotdown
+rqt_graph
+
+rostopic pub -r 5 /vesc/high_level/ackermann_cmd_mux/input/nav_0 taptap (*set speed : 1.0, steering_angle :0.1 , speed : 1.0 , angle : -0.2 is reverse): 5times in 1 secends send topic and push RB, we can see machine move 
+    set only angle, speed.
 
 
 
