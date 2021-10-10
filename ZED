@@ -5,6 +5,7 @@ cd
 ls -la /dev/tty*
 roslaunch wecar teleop.launch    //in home dir, joystick can move, machine head spin
 how to move ?  >>  LB + right stick : left,right, LB + Left stick : front, back   , RB : automove
+-------------------------------------------------------------자동차의 라이다 센서를 동작하고 rqt_image_view를 킴 ----------------------------------------------------------------
 rosrun rviz rviz -d /home/wecar/wecar_ws/src/wecar/rviz/view_sensors.rviz  >> rviz open
 rviz showdown
 
@@ -14,7 +15,6 @@ rviz showdown
     x,y,z,red sign are made
     
     add > By topic > Laserscan
-
 rostopic echo /scan -n 1  >>>> 'laser' is 좌표계
 
 
@@ -24,6 +24,8 @@ rqt shotdown
 
 rivz > add > TF > all Enable uncheck > Axes uncheck > Frame Fixe : odom > odom, base_link check > and move controler : visualization move
 rivz shotdown
+---------------------------------------------------------------rviz 동작 방법---------------------------------------------------------------------------------------------------
+
 rqt_graph
 
 rostopic pub -r 5 /vesc/high_level/ackermann_cmd_mux/input/nav_0 taptap (*set speed : 1.0, steering_angle :0.1 , speed : 1.0 , angle : -0.2 is reverse): 5times in 1 secends send topic and push RB, we can see machine move 
@@ -36,12 +38,12 @@ rosed zed_wrapper common.yaml >> open common.yaml in vscode
 don`t setting ridar
 
 rosed zed_wrapper vesc.yaml
-    vesc.driver speedmin,max 건드리지말기
+    vesc.driver speedmin,max 건드리지말기 ???
     steering_angle_to_servo_offset : 사용자의 요구에 맞게 변환가능 ( 일자로 된 값)
 
 rosmsg show sensor_msgs/LaserScan : 라이다 레이져 스캔의 정보
    라이다 정면에 있는 값을 추출하려면 센터에 있는 값을 받는다.
-   
+---------------------------------------------------------------자율주행 기본 셋팅과 기본 셋팅중에 건드려야할것은 앵글과 스피드----------------------------------------------------------------------
 
 라이다 데이터를 받아들이는 방법
 
@@ -109,7 +111,7 @@ code camera_sub.py #opencv로 이미지를 띄워주는 예제
             rospy.spin()
         if __name__ == "__main__":
             run()
-
+---------------------------------------------------------------카메라 프레임을 생성 ------------------------------------------------------------------------------------------
 
 roslaunch wecar teleop만 실행된 터미널을 제외하고 모두 종료
 새로운 터미널을 하나 생성
@@ -152,7 +154,7 @@ vscode를 통해 steer_pub을 수정 *수정할 때 위에 두 코드의 이름�
 
 cd wecar_ws
 lider_sub 실행, steer_sub 실행하면 RB를 눌렀을 때 자동으로 앞으로 가다가 라이다센서에 가까이 대면 멈춤 
-
+----------------------------------------------------------------------------자동 멈춤 장치 코드 ---------------------------------------------------------------------------------
 roscd wecar_test
 mkdir launch
 cd launch
@@ -163,13 +165,14 @@ code start_all.launch
             <node name="steer_pub" pkg = "wecar_test" type = "steer_sub.py" />
         </launch>
 roslaunch wecar_test start_all.launch 를 하면 위에서 3개를 켰던 것과 동일하게 실행됨 
-
+--------------------------------------------------자동 멈춤, 카메라, 라이다 센서 각도 값읽는 파일3개를 하나의 런치파일로 실행 가능------------------------------------------------
 bag하는 방법
 roslaunch wecar teleop.launch > 라이다 동작
 cd Desktop //새로운 터미널에서
 rosbag help
 play랑 record를 쓸거
 rosbag record /zed2/zed_node/rgb/image_rect_color /scan /vesc/low_level/ackermann_cmd_mux/input/teleop /vesc/high_level/ackermann_cmd_mux/input/nav0
+/zed2/zed_node/rgb/image_rect_color >> 카메라 뷰
 새로운 터미널을 열고
 roscore
 새로운 터미널 열고 
@@ -179,8 +182,107 @@ rosbag play -l --clock bag파일//라이다는 오래된 값을 받아들이게�
 rostopic list
 
 rosbag을 통해서 데이터를 저장하고 불러올 수 있음
+----------------------------rosbag를 통해 rosbag record 노드 노드 노드 등의 데이터를 저장하기 시작 후 play를 통해 사이에 저장된 데이터 값을 읽는다---------------------------------
+----------------------------------------------------------rqt_image_view 실행 후 play되는 데이터 확인----------------------------------------------------------------------------
+roslaunch wecar teleop.launch
+rosbag record /zed2/zed_node/rgb/image_rect_color /scan
+다 끄고
+roscore
+rosbag play -l --clock bag 2021..파일이름
+rqt_image_view 키면 play되는 데이터 확인
+
+거리에 대한 분해능이 좋은 편임 , range값에 비례하게 거리를 조절, 
+---------------------------------------------------------------rviz 화면에 직육면체를 띄우기------------------------------------------------------------------------------------
+        #! /usr/bin/env python
+
+        import rospy
+        from visualization_msgs.msg import Marker
+
+        def talker():
+            pub = rospy.Publisher('test_marker',Marker,queue_size = 10)
+            rospy.init_node('talker',annoymous =True)
+            rate = rospy.Rate(10)
+            while not rospy.is_shotdown():
+                marker = Marker()
+                marker.header.frame_id = "marker_frame"
+                marker.type = 1
+                marker.pose.orientation.w = 1
+                marker.scale.x = 1.0
+                marker.scale.y = 1.0
+                marker.scale.z = 1.0
+                marker.color.r = 1.0
+                marker.color.g = 1.0
+                marker.color.b = 1.0
+                marker.color.a = 1.0
+                pub.publish(marker)
+                rate.sleep()
+        if __name__ == "__main__"
+            talker()
+rosrun wecar_test marker_pub.py
+rviz > add Marker > Fixframe = header.frame.id(marker_frame)
+
+---------------------------------------------------------------rviz 화면에 직육면체를 띄우기------------------------------------------------------------------------------------
+roslaunch zed_ar_track_alvar_example zed_ar_track_alvar.launch
+rviz화면이 나옴
+Fixed frame을 basic_link로 바꿔주면 뭔가뜸
+left image의 iamge topic을 ../rect color로 바꿈
+이후 종이를 카메라에 갖다대면 인식함
+
+rostopic list라고 치면 visualization_marker 에 해당하는 부분을 찾을 수 있음
+rostopic echo /zed/visualization_marker -n 1 을 하게되면 왼쪽 카메라를 기준으로 마커의 위치를 찾을 수 있음
+google에 zed ar track 이라고 치면 맨위에 Stereolabs ZED camera 라는 사이트에서 마커를 찾을 수 있음 대회에서 0번을 쓸 예정
+---------------------------------------------------------------마커를 인식하고 거리데이터와 위치데이터를 추출 -------------------------------------------------------------------
+차선인식을 하는 방법
+cd wecar_ws
+roscd wecar_test/scripts/
+cp camera_sub.py camera_test.py
+code camera_test.py
+        #!  /usr/bin/env python 
+        import rospy
+        from sensor_msgs.msg import Image
+        from std_msgs.msg import Int32
+        from cv_bridge import CvBridge #opencv와 로스 이미지 사이에는 차이가 있으므로 opencv 이미지 파일형태로 변환시켜주는 모듈
+        import cv2 #rostopic list 카메라의 데이터 타입을 확인 
+                    rostopic info /zed2/zed_node/rgb/image_rect_color 을 치면 Image값인 것을 확인하고 코드에 Image를 import
+
+        class lidar_receiver:
+            def __init__(self):
+                self.lidar_sub = rospy.Subscriber("/zed2/zed_node/rgb/image_rect_color",Image, self.callback)
+                self.stop_pub = rospy.Publisher("/check",Int32, queue_size = 5)
+                self.cvbridge = CvBridge()
+
+            def callback(self,data): #rosmsg show sensor_msgs/LaserScan에 나온 변수들을 사용가능
+                frame = self.cvbridge.imgmsg_to_cv2(data,"bgr8")
+                hsv = cv2,svtColor(frame, cv2.COLOR_BGR2HSV)
+                cv2.imshow("frame",frame)
+                cv2.imshow("hsv",hsv)
+                cv2.waitKey(1) #이미지 창을 띄우고 기다리는것 (1ms) imshow와 세트임
+                self.stop_pub.publish(1)
+        def run():
+            rospy.init_node("camera_sub", anonymous=True) # 3개를 동시에 킬때 _pub 앞에 부분의 이름을 수정해야댐
+            lidar_receiver_a = lidar_receiver()
+            rospy.spin()
+        if __name__ == "__main__":
+            run()
+roscore
+rosbag play -l --clock 21.bag
+rosrun wecar_test camera_test.py
+-------------------------------------------기존에 rosbag를 통해 저장된 동영상을 hsv를 통해 색을 추출해내는 예제-------------------------------------------------------------------
+
+lane detection udacity 구글 검색해서 Ayanzadeh93의 깃허브예제를 확인
+카메라를 수직에서 보는 뷰로 변환하여 차선을 인식, 대회 트랙은 흰색이 아니라 주황색으로 선이 그어져있음
 
 
-    
+
+
+
+
+
+
+
+
+
+
+
 
 
