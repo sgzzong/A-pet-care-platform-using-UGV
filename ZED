@@ -272,17 +272,45 @@ rosrun wecar_test camera_test.py
 lane detection udacity 구글 검색해서 Ayanzadeh93의 깃허브예제를 확인
 카메라를 수직에서 보는 뷰로 변환하여 차선을 인식, 대회 트랙은 흰색이 아니라 주황색으로 선이 그어져있음
 
-
-
-
-
-
-
-
-
-
-
-
-
+이진화를 시키는 방법(camera_test 코드에 추가)
+import numpy as np
+callback함수에 아래 코드를 추가 *코드의 순서는 적절하게 조정해야함
+    lower_th = np.array([0,0,100])
+    higher_th = np.array([50,255,200])    //lower와 higher의 색상 범위를 좁히게되면 원하는 곳을 파악가능 [0,80,0],[30,255,255] 하면 노란색 색출가능
+    mask =cv2.inRange(hsv,lower_th,higher_th)
+    cv2.imshow("mask",mask)
+    
+    colored_frame = np.zeros_like(frame) //hsv로 이진화하여 흰색데이터를 얻을 곳을 and연산자를 통해 기존의 화면과 같은 색을 대입
+    res = cv2.bitwise_and(colored_frame, frame, mask =mask)
+    cv2.imshow("colored frame", res)
+    
+    pts1 = np.float32([[100,100],[200,100],[200,200],[100,200]]) //점 4개를 그린다
+    pts2 = np.float32([[0,0],[640,0],[640,480],[0,480]]) //점 두개의 위치는 바꾸되 순서는 바꾸지 않는다 !
+    for i in pts1:
+        cv2.circle(frame, tuple(i),5,(255,0,255), -1)
+    M = cv2.getPerspectiveTransform(pts1,tps2) //변환행렬을 통해 점 4개 사이의 640,480 크기의 확대한 부분을 볼 수 있다
+    inv_M = cv2.getPerspectiveTransform(pts2,pts1) //변환 행렬을 계산
+    BEV = cv2.warpPerspective((frame, M,(640,480))
+    cv2.imshow("BEV",BEV) //가능하면 각도를 틀었을 때 차선이 모두 보이도록 설정하는 것이 좋다
+    
+    cv2.circle(frame, (320,240), 20,(255,0,0), -1) //첫번째 숫자는 위치, 두번째 숫자는 굵기, 세번째 숫자는 색깔, -1은 선의 굵기로 화면에 점을 표시
+    
+    카메라에 나오는 아랫쪽에 해당하는 부분이 실제 범퍼랑 거리가 얼마나 되는지 먼저 확인해야한다.
+    차선의 기울기를 인식하면 좀 더 부드럽게 갈 수 있음
+    바퀴각도 계산
+    steering_angle = distance * kd + angle * ka 차선의 기울기와 차선과의 거리를 적절한 상황에 계산하여 사용하면 더 좋은 결과를 도출 할 수있음
+    
+    0. 차선인식을 해라
+    1. 완주를 할 수 있는 차량을 만들어라
+    2. 나머지 미션들을 준비하면 됨
+    
+    wecar에서 lane_detection , obstacle_detector(클러스터링, 트래킹해주는 패키지), 신호등을 이미지 처리로하는 것이 아니고 특정한 토픽으로 들오게끔해줄거임,
+    그 토픽받아서 동작하는 것만 수행하면됨(신호등의 색깔 걱정안해도됨 )
+    -----------------------------라이다를 통해 점 가운데를 기준으로 +30도에 range가 0.5 이내인 점 10개 이상이면 steer가 왼쪽 -30~0도에 찍히면 오른쪽으로 틀고, 둘다 10개 이상이면
+    정지, 둘다 없으면 1.0m/s로 직진
+    
+    
+    
+    
 
 
