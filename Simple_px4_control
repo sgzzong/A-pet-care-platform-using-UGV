@@ -1,0 +1,5 @@
+1,2,3,4 terminal open
+1. roscore
+2. ./QGroundControl.AppImage 
+3. cd PX4_Autopilot > make px4_sitl gazebo
+4. roslaunch mavros px4.launch fcu_url:="udp://:14540@172.19.88.24:14557" > ifconfig ip address
