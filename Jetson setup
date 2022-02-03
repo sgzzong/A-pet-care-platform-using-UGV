@@ -16,7 +16,7 @@ cd ~/catkin_ws/src
 sudo apt install ros-melodic-rosserial-python ros-melodic-tf ros-melodic-hls-lfcd-lds-driver ros-melodic-turtlebot3-msgs ros-melodic-dynamixel-sdk
 git clone -b melodic-devel https://github.com/ROBOTIS-GIT/turtlebot3.git
 cd ~/catkin_ws/src/turtlebot3
-rm -r turtlebot3_descripsion/ turtlebot3_teleop/ turtlebot3_navigation/ turtlebot3_slam/ turtlebot3_example/ > 실행여부 판단하기
+rm -r turtlebot3_description/ turtlebot3_teleop/ turtlebot3_navigation/ turtlebot3_slam/ turtlebot3_example/ > 실행여부 판단하기
 source /opt/ros/melodic/setup.sh
 cd ~/catkin_ws && catkin_make
 source ~/.bashrc
