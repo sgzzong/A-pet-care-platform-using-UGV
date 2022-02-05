@@ -1,0 +1,11 @@
+한글
+https://greedywyatt.tistory.com/105
+재부팅 후 우측 상단 한글로 바꾸기
+
+서브모니터
+sudo apt install gnome
+sudo service gdm3 restart
+sudo reboot
+
+system program problem detected 팝업 해결
+sudo rm /var/crash/*
