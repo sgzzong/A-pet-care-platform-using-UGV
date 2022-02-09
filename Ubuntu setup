@@ -15,3 +15,12 @@ https://j-remind.tistory.com/57?category=693866
 
  WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED! (ssh접속 오류 해결법)
 ssh-keygen -R [접속하려는 IP or DomainName] << romote PC에서 진행
+
+git clone ssh 에러
+vim ~/.ssh/config 들어가서 
+    Host github.com
+      Hostname ssh.github.com
+      Port 443
+내용 추가
+
+이후 https://velog.io/@sdc337dc/git-RSA-%ED%82%A4-%EC%97%90%EB%9F%AC-%EB%B0%9C%EC%83%9D%EC%8B%9C 에서 ssh키 등록
