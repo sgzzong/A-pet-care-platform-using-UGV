@@ -24,3 +24,6 @@ vim ~/.ssh/config 들어가서
 내용 추가
 
 이후 https://velog.io/@sdc337dc/git-RSA-%ED%82%A4-%EC%97%90%EB%9F%AC-%EB%B0%9C%EC%83%9D%EC%8B%9C 에서 ssh키 등록
+
+빌드 시 gcc,host 관련 오류
+catkin build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/gcc-6
