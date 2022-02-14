@@ -27,3 +27,7 @@ vim ~/.ssh/config 들어가서
 
 빌드 시 gcc,host 관련 오류
 catkin build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/gcc-6
+
+image view 사용할 때 
+rosrun uvc_camera uvc_camera_node
+실행시키고 해야지 카메라 노드가 인식됌
