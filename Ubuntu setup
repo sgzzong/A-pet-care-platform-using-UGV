@@ -31,3 +31,6 @@ catkin build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/gcc-6
 image view 사용할 때 
 rosrun uvc_camera uvc_camera_node
 실행시키고 해야지 카메라 노드가 인식됌
+
+gazebo, telop 연동안될 때
+sudo apt install ros-melodic-gazebo-ros-pkgs
