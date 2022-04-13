@@ -24,7 +24,7 @@ class lidar_receiver:
         #     print("warnig")
         # print(len(data.ranges))
         for i in range(0,360):
-            if data.ranges[i]<0.5 and data.ranges[i]>0.1:
+            if data.ranges[i] < 0.5 and data.ranges[i] > 0.1:
                 print(data.ranges[i])
                 print("Stop")
                 self.stop_pub.publish(1)
