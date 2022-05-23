@@ -22,3 +22,6 @@ roscore
 remote PC : roslaunch turtlebot3_bringup turtlebot3_robot.launch
 roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/map.yaml
 rosrun my_package talker.py
+
+사운드 노드 켜기
+rosrun sound_play soundplay_node.py
