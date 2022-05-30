@@ -28,9 +28,12 @@ rosrun sound_play soundplay_node.py
 
 FULL
 roslaunch turtlebot3_bringup turtlebot3_robot.launch
+  rosrun simple_servo_control servo_server.py
 roslaunch realsense2_camera rs_camera.launch
-rosrun simple_servo_control servo_server.py
 roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/map.yaml
 roslaunch darknet_ros darknet_ros.launch
-rosrun sound_play soundplay_node.py
-rosrun my_package talker.py
+  rosrun sound_play soundplay_node.py
+  rosrun my_package talker.py
+
+turtlebot3_robot.launch 파일에 아래 첨부
+  <node pkg = "simple_servo_control" type = "servo_server.py" name = "servo" />
