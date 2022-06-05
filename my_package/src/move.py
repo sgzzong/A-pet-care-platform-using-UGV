@@ -7,6 +7,7 @@ from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Point, Twist
 from math import atan2
 import sys, select, os
+from std_msgs.msg import Int32,String
 if os.name == 'nt':
   import msvcrt
 else:
@@ -33,54 +34,66 @@ def getKey():
     return key
 if os.name != 'nt':
         settings = termios.tcgetattr(sys.stdin)
-rospy.init_node("speed_controller")
-pub = rospy.Publisher("/cmd_vel", Twist, queue_size = 1)
-speed = Twist()
-while not rospy.is_shutdown():
-    key = getKey()
-    if key == 'w' :
-        speed.linear.x += 0.01
-    if key == 'a' :
-        speed.angular.z += 0.01
-    if key == 's' :
-        speed.linear.x = 0
-        speed.angular.z = 0
-    if key == 'd' :
-        speed.angular.z += -0.01
-    if key == 'x' :
-        speed.linear.x += -0.01
-    if key == 'u' :
-        speed.linear.x = 0
-        speed.angular.z = 0.26
-    if key == 'i' :
-        speed.linear.x = 0.2
-        speed.angular.z = 0.26
-    if key == 'q' :
-        stop = 1
-        speed.linear.x = 0.26
-        speed.angular.z = 0.26
-    if key == 'e' :
-        stop = 1
-        speed.linear.x = 0.26
-        speed.angular.z = -0.26
-    if key == 'z' :
-        stop = 1
-        speed.linear.x = -0.26
-        speed.angular.z = 0.26
-    if key == 'c' :
-        stop = 1
-        speed.linear.x = -0.26
-        speed.angular.z = 0.26
-    if key == 'p':
-        playsound.playsound('sample.wav')
-    else:
-        if (key == '\x03'):
-            break
-    if stop >= 1:
-        stop += 1
-        if(stop > 50):
-            stop = 0
+
+class contorl_move:
+    def __init__(self):
+        self.pub = rospy.Publisher("/cmd_vel", Twist, queue_size = 1)
+        self.phone = rospy.Subscriber("/commandar_line", String, self.control)
+    def control(self,data):
+        global stop
+        print(type(data))
+        speed = Twist()      
+        if data == 'Go up' :
+            speed.linear.x += 0.01
+        if data == 'Go left' :
+            speed.angular.z += 0.01
+        if data == 'Stop' :
             speed.linear.x = 0
             speed.angular.z = 0
-    print("current",speed.linear.x,"angle",speed.angular.z)
-    pub.publish(speed)
+        if data == 'Go down' :
+            speed.angular.z += -0.01
+        if data == 'Go right' :
+            speed.linear.x += -0.01
+        if data == 'Play' :
+            speed.linear.x = 0
+            speed.angular.z = 0.26
+        if data == 'i' :
+            speed.linear.x = 0.2
+            speed.angular.z = 0.26
+        if data == 'q' :
+            stop = 1
+            speed.linear.x = 0.26
+            speed.angular.z = 0.26
+        if data == 'e' :
+            stop = 1
+            speed.linear.x = 0.26
+            speed.angular.z = -0.26
+        if data == 'z' :
+            stop = 1
+            speed.linear.x = -0.26
+            speed.angular.z = 0.26
+        if data == 'c' :
+            stop = 1
+            speed.linear.x = -0.26
+            speed.angular.z = 0.26
+        if data == 's' :
+            stop = 1
+            speed.linear.x = -0.26
+            speed.angular.z = 0.26    
+        if data == 'Call':
+            playsound.playsound('sample.wav')
+        if stop >= 1:
+            stop += 1
+            if(stop > 50):
+                stop = 0
+                speed.linear.x = 0
+                speed.angular.z = 0
+        print("current",speed.linear.x,"angle",speed.angular.z)
+        rospy.sleep(5)
+        self.pub.publish(speed)
+def run():
+    rospy.init_node("speed_controller")
+    move_control = contorl_move()
+    rospy.spin()
+if __name__ == '__main__':
+    run()

@@ -1,0 +1,6 @@
+<launch>
+    <group ns = "alllaunch">
+        <node pkg = "my_package" type = "talker" name = "talker" >
+        <node pkg = "sound_play" type = "sound_play" name = "sound" >
+    </group>
+<launch>

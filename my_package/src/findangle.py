@@ -23,10 +23,12 @@ class lidar_receiver:
         # if data.ranges[0] < 0.1:
         #     print("warnig")
         # print(len(data.ranges))
-        for i in range(0,360):
-            if data.ranges[i] < 0.5 and data.ranges[i] > 0.1:
+        for i in range(0,180):
+            if i>90:
+                i += 180
+            if data.ranges[i] < 0.8 and data.ranges[i] > 0.5:
                 print(data.ranges[i])
-                print("Stop")
+                print(i)
                 self.stop_pub.publish(1)
 def run():
     rospy.init_node("lidar_sub", anonymous=True) # 3개를 동시에 킬때 _pub 앞에 부분의 이름을 수정해야댐

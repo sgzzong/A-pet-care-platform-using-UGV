@@ -1,90 +1,175 @@
 #!/usr/bin/env python
+# -*- coding: utf-8- -*-
 import rospy
-import tf.transformations
-import time
-from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal, MoveBaseActionGoal, MoveBaseActionResult
-from geometry_msgs.msg import Twist, Pose, Point, PoseStamped, PoseWithCovarianceStamped, Quaternion
-from actionlib_msgs.msg import GoalStatusArray, GoalStatus
-import actionlib
+import playsound
+from nav_msgs.msg import Odometry
+from tf.transformations import euler_from_quaternion
+from geometry_msgs.msg import Point, Twist
+from math import atan2
+import sys, select, os
+from actionlib_msgs.msg import GoalStatusArray,GoalID
 
+from std_msgs.msg import Int32,String
+if os.name == 'nt':
+  import msvcrt
+else:
+  import tty, termios
+stop = 0
+x = 0.0
+y = 0.0 
+theta = 0.0
+change = 0
+app = ""
+stack = 0
+def getKey():
+    if os.name == 'nt':
+      if sys.version_info[0] >= 3:
+        return msvcrt.getch().decode()
+      else:
+        return msvcrt.getch()
 
-def pose_callback(pose_with_covariance):
-    # print(pose_with_covariance)
-    pose = pose_with_covariance.pose.pose
-    print("amcl_pose = {x: %f, y:%f, orientation.z:%f" % (pose.position.x, pose.position.y, pose.orientation.z))
+    tty.setraw(sys.stdin.fileno())
+    rlist, _, _ = select.select([sys.stdin], [], [], 0.1)
+    if rlist:
+        key = sys.stdin.read(1)
+    else:
+        key = ''
 
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+    return key
+def we(speed):
+    speed.linear.x = 0.2
+    speed.angular.z = -0.4
+    for i in range(3):
+        if(i == 2):
+            speed.linear.x = 0
+            speed.angular.z = 0
+        pub.publish(speed)  
+        if(i < 2):
+            rospy.sleep(1)  
+def wq(speed):
+    speed.linear.x = 0.2
+    speed.angular.z = 0.4
+    for i in range(3):
+        if(i == 2):
+            speed.linear.x = 0
+            speed.angular.z = 0
+        pub.publish(speed)
+        if(i < 2):
+            rospy.sleep(1)
+    
+def sc(speed):
+    speed.linear.x = -0.2
+    speed.angular.z = 0.4
+    for i in range(3):
+        if(i == 2):
+            speed.linear.x = 0
+            speed.angular.z = 0
+        pub.publish(speed)
+        if(i < 2):
+            rospy.sleep(1)
+def sz(speed):
+    speed.linear.x = -0.2
+    speed.angular.z = -0.4
+    for i in range(3):
+        if(i == 2):
+            speed.linear.x = 0
+            speed.angular.z = 0
+        pub.publish(speed)
+        if(i < 2):
+            rospy.sleep(1)
+def spin(speed):
+    speed.linear.x = 0
+    speed.angular.z = 4
+    for i in range(3):
+        rospy.sleep(1.3)
+        if(i == 2):
+            speed.linear.x = 0
+            speed.angular.z = 0
+        pub.publish(speed)
+def spin_r(speed):
+    speed.linear.x = 0
+    speed.angular.z = -4
+    pub.publish(speed)
+    for i in range(3):
+        rospy.sleep(1.3)
+        if(i == 2):
+            speed.linear.x = 0
+            speed.angular.z = 0
+            pub.publish(speed)
+if __name__=="__main__":
+    if os.name != 'nt':
+        settings = termios.tcgetattr(sys.stdin)
 
-def move_base_status_callback(status):
-    pass
-
-
-def move_base_result_callback(result):
-    pass
-
-
-class moveBaseAction():
-    def __init__(self):
-        self.move_base_action = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-        self.move_base_action.wait_for_server(rospy.Duration(5))
-
-    def createGoal(self, x, y, theta):
-        # quat = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
-        quat = tf.transformations.quaternion_from_euler(0, 0, theta)
-        print(quat[0],quat[1],quat[2],quat[3])
-        goal = MoveBaseGoal()
-        goal.target_pose.header.frame_id = 'map'
-        goal.target_pose.header.stamp = rospy.Time.now()
-        goal.target_pose.pose.position.x = x
-        goal.target_pose.pose.position.y = y
-        goal.target_pose.pose.orientation.w = 1.0
-        # goal.target_pose.pose = Pose(Point(x, y, 0.000), Quaternion(quat[0], quat[1], quat[2], quat[3]))
-        return goal
-
-    def moveToPoint(self, x, y, theta):
-        target_point = self.createGoal(x, y, theta)
-        print("here : ",target_point.target_pose.pose.position.x)
-        # self.moveToGoal(target_point)
-
-    def moveToGoal(self, goal):
-        self.move_base_action.send_goal(goal)
-        success = self.move_base_action.wait_for_result()
-        state = self.move_base_action.get_state()
-        print ("Move to %f, %f, %f ->" % (
-            goal.target_pose.pose.position.x,
-            goal.target_pose.pose.position.y,
-            goal.target_pose.pose.orientation.z
-        ))
-        if success and state == GoalStatus.SUCCEEDED:
-            print(" Complete")
-            return True
-        else:
-            print(" Fail")
-            self.move_base_action.cancel_goal()
-            return False
-
-
-# Main program
-def main():
-    rospy.init_node('RAI1', anonymous=True)
-    publisher_goal = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=1)
-    rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, pose_callback)
-    rospy.Subscriber('/move_base/status', GoalStatusArray, move_base_status_callback)
-    rospy.Subscriber('/move_base/result', MoveBaseActionResult, move_base_result_callback)
-
-    # TODO
-    mba = moveBaseAction()
+    rospy.init_node('turtlebot3_teleop')
+    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+    cancel_pub = rospy.Publisher("/move_base/cancel", GoalID, queue_size=1)
+    turtlebot3_model = rospy.get_param("model", "waffle")
+    speed = Twist()
+    
     while not rospy.is_shutdown():
-        mba.moveToPoint(1.0, -1.0, -0.6654)
-        rospy.sleep(1)
+        key = getKey()
+        if key == 'w' :
+            speed.linear.x += 0.1
+        if key == 'a' :
+            speed.angular.z += 0.1
+        if key == 's' :
+            speed.linear.x = 0
+            speed.angular.z = 0
+        if key == 'd' :
+            speed.angular.z += -0.1
+        if key == 'x' :
+            speed.linear.x += -0.1
+        if key == 'u' :
+            speed.linear.x = 0
+            speed.angular.z = 3
+        if key == 'i' :
+            stack += 1
+            if stack == 1: spin(speed)
+            if stack == 2: wq(speed); sz(speed); we(speed); sc(speed)
+            if stack == 3: we(speed); wq(speed); wq(speed); we(speed); spin(speed)
+            if stack == 4: sz(speed); sc(speed); sc(speed); sz(speed); spin(speed)
+            if stack == 5: wq(speed); sc(speed); wq(speed); sc(speed); wq(speed)
+            if stack == 6: spin_r(speed); spin(speed)
+            if stack == 7: stack = 0
 
-        mba.moveToPoint(0.10218, 0, 0.9966)
-        rospy.sleep(1)
-
+        if key == 'q' :
+            wq(speed)
+        if key == 'e' :
+            we(speed)
+        if key == 'z' :
+            sz(speed)
+        if key == 'c' :
+            sc(speed)
+        if key == 'b': #walts
+            change = 1
+            stop = 1
+            speed.linear.x = 0.26
+            speed.angular.z = 0.26
+        if key == 'g': #walts
+            spin(speed)
+            
+            # we(speed)
+        # if key == 'c' :
+        #     cancel_msg = GoalID()
+        #     cancel_pub.publish(cancel_msg)
+        if key == 'p':
+            playsound.playsound('sample.wav')
+        else:
+            if (key == '\x03'):
+                break
+        if stop >= 1:
+            stop += 1
+            if(stop > 15):
+                stop = 0
+                bx = 0
+                bz = 0
+                if(change == 1):
+                    bx = - speed.linear.x
+                    bz = - speed.angular.z
+                    change = 0
+                speed.linear.x = bx
+                speed.angular.z = bz
+        print("current",speed.linear.x,"angle",speed.angular.z)
+        pub.publish(speed)
     rospy.sleep(1)
-
-
-if __name__ == '__main__':
-    try:
-        main()
-    except rospy.ROSInterruptException:
-        pass

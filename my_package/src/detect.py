@@ -21,7 +21,7 @@ class lidar_receiver:
             self.stop_pub.publish(1)
         else:
             print("safe")
-            self.stop_pub.publish(0)
+            self.stop_pub.publish(0) #0이 발행되고 있을 때 cancel 노드가 실행되지 않는건가 ?
         print("Class : ",name,xmin,xmax,ymin,ymax)
     def call(self,data):
         for box in data.bounding_boxes:
