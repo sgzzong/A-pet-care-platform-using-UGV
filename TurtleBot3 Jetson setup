@@ -1,5 +1,6 @@
-Jetson setup
+터틀봇이 젯슨나노 + OpenCR로 구성되어있다면 전체 복사
 
+# Jetson setup
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get install -y chrony ntpdate build-essential curl nano
@@ -21,7 +22,7 @@ source /opt/ros/melodic/setup.sh
 cd ~/catkin_ws && catkin_make
 source ~/.bashrc
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-OpenCR setup 새로운 터미널
+# OpenCR setup 새로운 터미널 
 sudo dpkg --add-architecture armhf
 sudo apt-get update
 sudo apt-get install libc6:armhf
