@@ -12,63 +12,82 @@ Lightening the AI model to reach the target point of the robot arm with policy D
 >env : GAZEBO<br/>
 >Task : Single target reach
 
-## installation(option)
-  moveit install : sudo apt install ros-noetic-moveit
+# TurtleBot Jetson Nano + OpenCR Setup
 
-  joint controller install : sudo apt-get install ros-noetic-joint-trajectory-controller
-
-  ros-bridge install : sudo apt-get install ros-noetic-rosbridge-server
-
-  trajectory install : sudo apt-get install ros-noetic-joint-trajectory-controller
-
-## Demonstration
-Model size : Teacher model ( Hidden layer : 256 * 128 * 64 ) >> Distilled Student model ( Hidden layer : 128 * 64 * 32 )
-
-Training Time : 90 minutes >> 20 minutes
-
-## Overview
-<div align="center">
-  <img src="https://github.com/sgzzong/Ned2_RL_reach_Policy-Ditillation/assets/86835751/15bff64d-5b06-407f-8641-da0caa9d2e78">
-</div>
-![image](https://github.com/sgzzong/Manipulator_RL_reach_Policy-Ditillation/assets/86835751/afaac763-26f9-4d62-ab60-e063352deb9b)
-
-## Installation
-  ```bash
-  cd ~/catkin_ws/src
-  git clone https://github.com/sgzzong/Ned2_RL_reach_Policy-Ditillation.git
-  virtualenv venv
-  source venv/bin/active
-  install -r requirements.txt
-  cd ~/catkin_ws
-  catkin_make
-  source devel/setup.bash # update workspace
-  ```
-
-## Manipulator(ned2 6DOF) environment setting with GAZEBO
-```bash
-roslaunch ned2_moveit demo_gazebo.launch #defalut 10x speed
-#If you want to change the speed, modify the physical parameters in Gazebo
-```
-## Teacher model reinforcement learning
-Learning the teacher model to be used for policy distillation
-
-If you want to change the network size, modify the layer on NN.py and the Config.py file
-```bash
-python PPO_Robotic_arm_training.py # learning teacher model
-python PPO_Robotic_arm_Inference.py # Demonstration of the Learned Teacher Model
-```
-
-## Policy Distillation
-Student model learning using teacher model knowledge
-
-If you want to change the network size, modify the layer on NN.py and the Config.py file
+## 1. Jetson Setup
 
 ```bash
-#check the teacher model path
-python Policy_distillation.py # Distlling
-python model_Inference.py #  Demonstration of the Distilled Student Model
-```
-## Experiment result
-<div align="center">
-  <img src="https://github.com/sgzzong/Manipulator_RL_reach_Policy-Ditillation/assets/86835751/ef7a1b23-c5e6-40bf-97b8-4978311be200">
-</div>
+# Update and upgrade the system
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo apt-get install -y chrony ntpdate build-essential curl nano
+
+# Sync time with NTP
+sudo ntpdate ntp.ubuntu.com
+
+# Add ROS repository to sources list
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+
+# Add ROS package keys
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+
+# Update and install ROS Melodic
+sudo apt-get update -y
+sudo apt-get install -y ros-melodic-ros-base
+
+# Install ROS dependencies
+sudo apt install python-rosdep
+sudo rosdep init
+rosdep update
+
+# Create ROS workspace
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
+
+# Install required ROS packages for TurtleBot3
+sudo apt install ros-melodic-rosserial-python ros-melodic-tf ros-melodic-hls-lfcd-lds-driver ros-melodic-turtlebot3-msgs ros-melodic-dynamixel-sdk
+
+# Clone TurtleBot3 repository
+git clone -b melodic-devel https://github.com/ROBOTIS-GIT/turtlebot3.git
+
+# Remove unnecessary folders from TurtleBot3
+cd ~/catkin_ws/src/turtlebot3
+rm -r turtlebot3_description/ turtlebot3_teleop/ turtlebot3_navigation/ turtlebot3_slam/ turtlebot3_example/
+
+# Source ROS setup script
+source /opt/ros/melodic/setup.sh
+
+# Build workspace
+cd ~/catkin_ws && catkin_make
+
+# Source bashrc
+source ~/.bashrc
+
+## 2. OpenCR Setup
+
+# Add ARM architecture and install ARM libraries
+sudo dpkg --add-architecture armhf
+sudo apt-get update
+sudo apt-get install libc6:armhf
+
+# Set OpenCR port and model
+export OPENCR_PORT=/dev/ttyACM0
+export OPENCR_MODEL=waffle
+
+# Download OpenCR firmware and extract it
+wget https://github.com/ROBOTIS-GIT/OpenCR-Binaries/raw/master/turtlebot3/ROS1/latest/opencr_update.tar.bz2
+tar -xvf opencr_update.tar.bz2
+cd ./opencr_update
+
+# Give write permissions to the port
+sudo chmod a+rw /dev/ttyACM0
+
+# Update OpenCR firmware
+sudo ./update.sh $OPENCR_PORT $OPENCR_MODEL.opencr
+
+# Download and apply udev rules for OpenCR
+wget https://raw.githubusercontent.com/ROBOTIS-GIT/OpenCR/master/99-opencr-cdc.rules
+sudo cp ./99-opencr-cdc.rules /etc/udev/rules.d/
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+
