@@ -5,12 +5,11 @@ Lightening the AI model to reach the target point of the robot arm with policy D
 >this repository is based on CUN-bjy/policy-distillation-baselines
 
 #### Evironment
->os : Ubuntu 20.04 LTS<br/>
->python V : 3.8.10<br/>
->algo : ppo<br/>
->robot : ned2<br/>
->env : GAZEBO<br/>
->Task : Single target reach
+>os : Ubuntu 18.04 LTS<br/>
+>python V : 3.6<br/>
+>robot : Turtlebot3<br/>
+>Simulator : GAZEBO<br/>
+>ROS version : Melodic
 
 # TurtleBot Jetson Nano + OpenCR Setup
 
@@ -62,7 +61,8 @@ cd ~/catkin_ws && catkin_make
 
 # Source bashrc
 source ~/.bashrc
-```bash
+```
+
 ## 2. OpenCR Setup
 ```bash
 # Add ARM architecture and install ARM libraries
@@ -90,4 +90,4 @@ wget https://raw.githubusercontent.com/ROBOTIS-GIT/OpenCR/master/99-opencr-cdc.r
 sudo cp ./99-opencr-cdc.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules
 sudo udevadm trigger
-```bash
+```
