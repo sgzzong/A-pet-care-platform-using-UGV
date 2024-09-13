@@ -1,8 +1,5 @@
 # A-pet-care-platform-using-UGV
-Lightening the AI model to reach the target point of the robot arm with policy Distillation
-
-#### Notice
->this repository is based on CUN-bjy/policy-distillation-baselines
+See below for each feature execution.
 
 #### Evironment
 >os : Ubuntu 18.04 LTS<br/>
