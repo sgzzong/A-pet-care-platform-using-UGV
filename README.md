@@ -62,9 +62,9 @@ cd ~/catkin_ws && catkin_make
 
 # Source bashrc
 source ~/.bashrc
-
+```bash
 ## 2. OpenCR Setup
-
+```bash
 # Add ARM architecture and install ARM libraries
 sudo dpkg --add-architecture armhf
 sudo apt-get update
@@ -90,4 +90,4 @@ wget https://raw.githubusercontent.com/ROBOTIS-GIT/OpenCR/master/99-opencr-cdc.r
 sudo cp ./99-opencr-cdc.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules
 sudo udevadm trigger
-
+```bash
