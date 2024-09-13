@@ -1,4 +1,4 @@
-# Manipulator_RL_reach_Policy-Ditillation
+# A-pet-care-platform-using-UGV
 Lightening the AI model to reach the target point of the robot arm with policy Distillation
 
 #### Notice
@@ -91,3 +91,61 @@ sudo cp ./99-opencr-cdc.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```
+
+# ROS Launch Commands for TurtleBot3, YOLO, Realsense, and More
+
+## 1. Realsense Node Execution
+# Run Realsense node
+```bash
+roslaunch realsense2_camera rs_camera.launch
+```
+# Run YOLO v3
+```bash
+roslaunch darknet_ros darknet_ros.launch
+```
+# Launch TurtleBot3 in a house environment in GAZEBO
+```bash
+roslaunch turtlebot3_gazebo turtlebot3_house.launch
+```
+# Launch RViz with a saved map
+```bash
+roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/map.yaml
+```
+# SLAM Node Execution
+```bash
+# Step 1: Start ROS core
+roscore
+
+# Step 2: On the remote PC, bring up TurtleBot3
+roslaunch turtlebot3_bringup turtlebot3_robot.launch
+
+# Step 3: Launch SLAM
+roslaunch turtlebot3_slam turtlebot3_slam.launch
+
+# Step 4: Teleop (manual control)
+roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
+
+# Step 5: Save the map
+rosrun map_server map_saver -f ~/map
+```
+# Navigation Node Execution
+```bash
+# Step 1: Start ROS core
+roscore
+
+# Step 2: On the remote PC, bring up TurtleBot3
+roslaunch turtlebot3_bringup turtlebot3_robot.launch
+
+# Step 3: Launch navigation with a saved map
+roslaunch turtlebot3_navigation turtlebot3_navigation.launch map_file:=$HOME/map.yaml
+
+# Step 4: Run a custom talker node
+rosrun my_package talker.py
+```
+# Run sound playback node
+```bash
+rosrun sound_play soundplay_node.py
+```
+
+
+
